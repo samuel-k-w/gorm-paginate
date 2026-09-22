@@ -26,15 +26,17 @@ func Paginate[T any](db *gorm.DB, params *paginate.PaginationParams, baseURL *ur
 	query := applyFilters(db, params, resolver, cfg)
 	query = applySorting(query, params, resolver, cfg)
 
-	// Safe count fork: use Session to clone statement while preserving the transaction (ConnPool) and context.
-	countDB := query.Session(&gorm.Session{})
-	// Strip preloads for the count query to avoid mapping errors on `int64`
-	countDB.Statement.Preloads = nil
+	// Safe count fork: temporarily remove preloads so they don't break the Count query
+	preloads := query.Statement.Preloads
+	query.Statement.Preloads = nil
 
 	var total int64
-	if err := countDB.Count(&total).Error; err != nil {
+	if err := query.Session(&gorm.Session{}).Count(&total).Error; err != nil {
 		return paginate.Page[T]{}, fmt.Errorf("count query failed: %w", err)
 	}
+
+	// Restore preloads for the data query
+	query.Statement.Preloads = preloads
 
 	// Resolve limits
 	page, limit := resolvePageLimit(params)

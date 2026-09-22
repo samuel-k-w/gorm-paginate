@@ -16,6 +16,8 @@
 
 <br>
 
+> **Note**: Looking for GORM integration? Check out the new [GORM Integration Module](./v4/gormpaginate) in v4!
+
 ## Versions
 
 | Version | Status | Documentation | Install |
