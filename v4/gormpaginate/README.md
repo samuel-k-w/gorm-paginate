@@ -84,3 +84,69 @@ GORM automatically filters out soft-deleted records (`DeletedAt IS NULL`). The p
 query := db.Unscoped()
 page, _ := gormpaginate.Paginate[User](query, params, r.URL)
 ```
+
+## Example: Layered API Architecture (Gin)
+
+When building layered applications (Handler → Service → Repository), the best practice is to parse the `PaginationParams` at the HTTP layer (Handler) and pass it down to your data layer (Repository) where the GORM query is constructed.
+
+### 1. Repository Layer
+The repository builds your base query (forced scopes, preloads) and applies the paginator.
+
+```go
+type UserRepository struct {
+	db *gorm.DB
+}
+
+func (r *UserRepository) FindPaginated(ctx context.Context, params *paginate.PaginationParams, baseURL *url.URL) (paginate.Page[User], error) {
+	// 1. Build your base query
+	query := r.db.WithContext(ctx).
+		Preload("Role").
+		Where("is_banned = ?", false)
+
+	// 2. Pass to the paginator
+	return gormpaginate.Paginate[User](query, params, baseURL, 
+		gormpaginate.AllowSorts("created_at", "name"), // Optional security constraints
+	)
+}
+```
+
+### 2. Service Layer
+The service acts as a bridge, delegating the parsed parameters to the repository.
+
+```go
+type UserService struct {
+	repo *UserRepository
+}
+
+func (s *UserService) GetUsersPage(ctx context.Context, params *paginate.PaginationParams, baseURL *url.URL) (paginate.Page[User], error) {
+	// You can apply business logic to override params here if needed
+	return s.repo.FindPaginated(ctx, params, baseURL)
+}
+```
+
+### 3. Handler Layer (Gin)
+The handler extracts the URL query string, generates the base URL for the HATEOAS links, and returns the paginated JSON.
+
+```go
+type UserHandler struct {
+	svc *UserService
+}
+
+func (h *UserHandler) List(c *gin.Context) {
+	// 1. Parse Gin request query string
+	params, err := paginate.BindQueryParamsToStruct(c.Request.URL.Query())
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid parameters"})
+		return
+	}
+
+	// 2. Call service, passing the Gin request context and URL
+	page, err := h.svc.GetUsersPage(c.Request.Context(), params, c.Request.URL)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
+		return
+	}
+
+	c.JSON(http.StatusOK, page)
+}
+```
