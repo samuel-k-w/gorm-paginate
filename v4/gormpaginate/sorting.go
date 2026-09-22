@@ -66,9 +66,24 @@ func applySorting(db *gorm.DB, params *paginate.PaginationParams, resolver *sche
 			}
 		}
 		if !hasPK {
-			// Determine the direction of the PK tie-breaker. Default to ASC, or match the last direction.
-			// Actually, just append PK ASC to ensure uniqueness.
+			// Find the JSON key for the PK field to append to params
+			pkJSONKey := pkField.Name
+			for _, tag := range strings.Split(pkField.Tag.Get("json"), ",") {
+				if tag != "" && tag != "omitempty" {
+					pkJSONKey = tag
+					break
+				}
+			}
+			
 			db = db.Order(pkField.DBName + " ASC")
+			
+			// MUST mutate params so NewCursorPage encodes the tie-breaker in the next/prev links!
+			if len(params.Sort) > 0 {
+				params.Sort = append(params.Sort, pkJSONKey)
+			} else {
+				params.SortColumns = append(params.SortColumns, pkJSONKey)
+				params.SortDirections = append(params.SortDirections, "ASC")
+			}
 		}
 	}
 

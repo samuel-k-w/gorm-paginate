@@ -22,11 +22,11 @@ func Paginate[T any](db *gorm.DB, params *paginate.PaginationParams, baseURL *ur
 		return paginate.Page[T]{}, fmt.Errorf("failed to parse schema: %w", err)
 	}
 
-	// Apply dynamic filters and sorting
+	// Apply dynamic filters
 	query := applyFilters(db, params, resolver, cfg)
-	query = applySorting(query, params, resolver, cfg)
 
-	// Safe count fork: temporarily remove preloads so they don't break the Count query
+	// Safe count fork: use Session to clone statement before applying sorting.
+	// We also temporarily remove preloads so they don't break the Count query.
 	preloads := query.Statement.Preloads
 	query.Statement.Preloads = nil
 
@@ -35,8 +35,11 @@ func Paginate[T any](db *gorm.DB, params *paginate.PaginationParams, baseURL *ur
 		return paginate.Page[T]{}, fmt.Errorf("count query failed: %w", err)
 	}
 
-	// Restore preloads for the data query
+	// Restore preloads
 	query.Statement.Preloads = preloads
+
+	// Apply sorting for the data query
+	query = applySorting(query, params, resolver, cfg)
 
 	// Resolve limits
 	page, limit := resolvePageLimit(params)
