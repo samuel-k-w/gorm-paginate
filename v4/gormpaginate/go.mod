@@ -14,7 +14,3 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.22 // indirect
 	golang.org/x/text v0.20.0 // indirect
 )
-
-// Local development only — removed before publishing the gormpaginate tag
-// once v4.1.0 exists on the module proxy.
-replace github.com/samuel-k-w/gorm-paginate/v4 => ../
