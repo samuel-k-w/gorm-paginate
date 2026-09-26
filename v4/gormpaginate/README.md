@@ -150,3 +150,49 @@ func (h *UserHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, page)
 }
 ```
+
+## Working with DTOs (Data Transfer Objects)
+
+If you use a strict layered architecture, you likely separate your Database Entities (GORM models) from your API Responses (DTOs). 
+
+Because this library relies on GORM tags to safely map columns and execute SQL, you must pass your **Database Entity** to the `Paginate` function. After retrieving the paginated entity, you can easily map the data slice to your DTO.
+
+```go
+// 1. Database Model (Used for GORM)
+type UserEntity struct {
+	ID           uint   `gorm:"primaryKey"`
+	FirstName    string `gorm:"column:first_name"`
+	PasswordHash string `gorm:"column:password_hash"`
+}
+
+// 2. API Response (Exposed to Client)
+type UserDTO struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
+}
+
+// 3. Mapping Function
+func GetUsersDTO(db *gorm.DB, params *paginate.PaginationParams, baseURL *url.URL) (paginate.Page[UserDTO], error) {
+	// A. Paginate using the Database Entity
+	entityPage, err := gormpaginate.Paginate[UserEntity](db, params, baseURL)
+	if err != nil {
+		return paginate.Page[UserDTO]{}, err
+	}
+
+	// B. Map the Entities to your DTOs
+	var dtos []UserDTO
+	for _, user := range entityPage.Data {
+		dtos = append(dtos, UserDTO{
+			ID:   user.ID,
+			Name: user.FirstName,
+		})
+	}
+
+	// C. Return a new Page struct with the DTOs, preserving Meta and Links!
+	return paginate.Page[UserDTO]{
+		Data:  dtos,
+		Meta:  entityPage.Meta,
+		Links: entityPage.Links,
+	}, nil
+}
+```
