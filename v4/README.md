@@ -15,6 +15,8 @@
 
 <br>
 
+> **Note**: Are you using GORM? Check out the new official [GORM Integration Module](./gormpaginate) for seamless, secure pagination over GORM models!
+
 ## Table of Contents
 
 - [Why v4?](#why-v4)
