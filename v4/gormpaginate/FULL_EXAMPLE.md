@@ -50,8 +50,8 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/booscaaa/go-paginate/v4/gormpaginate"
-	"github.com/booscaaa/go-paginate/v4/paginate"
+	"github.com/samuel-k-w/gorm-paginate/v4/gormpaginate"
+	"github.com/samuel-k-w/gorm-paginate/v4/paginate"
 	"gorm.io/gorm"
 	"myapp/domain"
 )
@@ -114,7 +114,7 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/booscaaa/go-paginate/v4/paginate"
+	"github.com/samuel-k-w/gorm-paginate/v4/paginate"
 	"myapp/domain"
 	"myapp/repository"
 )
@@ -152,7 +152,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/booscaaa/go-paginate/v4/paginate"
+	"github.com/samuel-k-w/gorm-paginate/v4/paginate"
 	"github.com/gin-gonic/gin"
 	"myapp/service"
 )

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/booscaaa/go-paginate/v4/paginate"
+	"github.com/samuel-k-w/gorm-paginate/v4/paginate"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )

@@ -5,7 +5,7 @@
 <p align="center">
   <h1 align="center">Go Paginate — The Ultimate Go Pagination Library</h1>
   <p align="center">
-    <a href="https://pkg.go.dev/github.com/booscaaa/go-paginate/v4"><img alt="Reference" src="https://img.shields.io/badge/go-reference-purple?style=for-the-badge"></a>
+    <a href="https://pkg.go.dev/github.com/samuel-k-w/gorm-paginate/v4"><img alt="Reference" src="https://img.shields.io/badge/go-reference-purple?style=for-the-badge"></a>
     <a href="https://github.com/booscaaa/go-paginate/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/booscaaa/go-paginate.svg?style=for-the-badge"></a>
     <a href="/LICENSE"><img alt="Software License" src="https://img.shields.io/badge/license-MIT-red.svg?style=for-the-badge"></a>
     <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/booscaaa/go-paginate/test.yaml?style=for-the-badge">
@@ -16,15 +16,18 @@
 
 <br>
 
-> **Note**: Looking for GORM integration? Check out the new [GORM Integration Module](./v4/gormpaginate) in v4!
+> **Note**: Looking for GORM integration? Check out the [GORM Integration Module](./v4/gormpaginate) in v4.
+>
+> This repository (`samuel-k-w/gorm-paginate`) publishes **v4 only** (core + gormpaginate).
+> Older v1/v2/v3 live upstream at [booscaaa/go-paginate](https://github.com/booscaaa/go-paginate).
 
 ## Versions
 
 | Version | Status | Documentation | Install |
 |---|---|---|---|
-| **v4** ✨ | **Latest — recommended** | [v4/README.md](v4/README.md) | `go get github.com/booscaaa/go-paginate/v4` |
-| v3 | Stable | [v3/README.md](v3/README.md) | `go get github.com/booscaaa/go-paginate/v3` |
-| v2 | Legacy | — | `go get github.com/booscaaa/go-paginate/v2` |
+| **v4** | **Published here** | [v4/README.md](v4/README.md) | `go get github.com/samuel-k-w/gorm-paginate/v4` |
+| **v4/gormpaginate** | **Published here** | [v4/gormpaginate/README.md](v4/gormpaginate/README.md) | `go get github.com/samuel-k-w/gorm-paginate/v4/gormpaginate` |
+| v3 / v2 | Upstream only | [booscaaa/go-paginate](https://github.com/booscaaa/go-paginate) | `go get github.com/booscaaa/go-paginate/v3` |
 
 ---
 
@@ -278,7 +281,7 @@ v4 is a complete rewrite with first-class **cursor pagination**, **generic respo
 ## Installation
 
 ```bash
-go get github.com/booscaaa/go-paginate/v4
+go get github.com/samuel-k-w/gorm-paginate/v4
 ```
 
 📖 **[Full v4 Documentation](v4/README.md)**

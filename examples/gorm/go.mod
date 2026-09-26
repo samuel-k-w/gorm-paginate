@@ -1,17 +1,10 @@
-module gorm-example
+module github.com/samuel-k-w/gorm-paginate/examples/gorm
 
-go 1.25.5
-
-replace github.com/booscaaa/go-paginate/v4 => ../../v4
-
-replace github.com/booscaaa/go-paginate/v4/gormpaginate => ../../v4/gormpaginate
+go 1.22
 
 require (
-	github.com/booscaaa/go-paginate/v4 v4.0.1 // indirect
-	github.com/booscaaa/go-paginate/v4/gormpaginate v0.0.0-00010101000000-000000000000 // indirect
-	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/mattn/go-sqlite3 v1.14.15 // indirect
-	gorm.io/driver/sqlite v1.5.0 // indirect
-	gorm.io/gorm v1.25.0 // indirect
+	github.com/samuel-k-w/gorm-paginate/v4 v4.1.0
+	github.com/samuel-k-w/gorm-paginate/v4/gormpaginate v0.1.0
+	gorm.io/driver/sqlite v1.5.0
+	gorm.io/gorm v1.25.12
 )

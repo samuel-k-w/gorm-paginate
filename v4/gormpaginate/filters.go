@@ -1,7 +1,7 @@
 package gormpaginate
 
 import (
-	"github.com/booscaaa/go-paginate/v4/paginate"
+	"github.com/samuel-k-w/gorm-paginate/v4/paginate"
 	"gorm.io/gorm"
 )
 
@@ -165,10 +165,10 @@ func applyOrGroup(db *gorm.DB, params *paginate.PaginationParams, resolver *sche
 		}
 	}
 
-	applyComparisonMapOr(orDB, params.GteOr, resolver, cfg, ">=", &first)
-	applyComparisonMapOr(orDB, params.GtOr, resolver, cfg, ">", &first)
-	applyComparisonMapOr(orDB, params.LteOr, resolver, cfg, "<=", &first)
-	applyComparisonMapOr(orDB, params.LtOr, resolver, cfg, "<", &first)
+	orDB = applyComparisonMapOr(orDB, params.GteOr, resolver, cfg, ">=", &first)
+	orDB = applyComparisonMapOr(orDB, params.GtOr, resolver, cfg, ">", &first)
+	orDB = applyComparisonMapOr(orDB, params.LteOr, resolver, cfg, "<=", &first)
+	orDB = applyComparisonMapOr(orDB, params.LtOr, resolver, cfg, "<", &first)
 
 	for field, values := range params.InOr {
 		f := resolver.ResolveColumn(field)
@@ -201,18 +201,19 @@ func applyOrGroup(db *gorm.DB, params *paginate.PaginationParams, resolver *sche
 	return db
 }
 
-func applyComparisonMapOr(orDB *gorm.DB, m map[string]any, resolver *schemaResolver, cfg *config, op string, first *bool) {
+func applyComparisonMapOr(orDB *gorm.DB, m map[string]any, resolver *schemaResolver, cfg *config, op string, first *bool) *gorm.DB {
 	for field, v := range m {
 		f := resolver.ResolveColumn(field)
 		if f != nil && resolver.IsFilterAllowed(field, cfg) {
 			if *first {
-				orDB.Where(f.DBName+" "+op+" ?", v)
+				orDB = orDB.Where(f.DBName+" "+op+" ?", v)
 				*first = false
 			} else {
-				orDB.Or(f.DBName+" "+op+" ?", v)
+				orDB = orDB.Or(f.DBName+" "+op+" ?", v)
 			}
 		}
 	}
+	return orDB
 }
 
 func applySearch(db *gorm.DB, term string, fields []string, resolver *schemaResolver, cfg *config) *gorm.DB {

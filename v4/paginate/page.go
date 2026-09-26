@@ -78,6 +78,9 @@ func NewPage[T any](data []T, totalItems int, params *PaginationParams, baseURL 
 	}
 
 	pageURL := func(p int) string {
+		if baseURL == nil {
+			return ""
+		}
 		u := *baseURL
 		q := u.Query()
 		q.Set("page", strconv.Itoa(p))
@@ -85,18 +88,21 @@ func NewPage[T any](data []T, totalItems int, params *PaginationParams, baseURL 
 		return u.String()
 	}
 
-	links := PageLinks{
-		Self:  pageURL(page),
-		First: pageURL(1),
-		Last:  pageURL(totalPages),
-	}
-	if page > 1 {
-		prev := pageURL(page - 1)
-		links.Prev = &prev
-	}
-	if page < totalPages {
-		next := pageURL(page + 1)
-		links.Next = &next
+	links := PageLinks{}
+	if baseURL != nil {
+		links = PageLinks{
+			Self:  pageURL(page),
+			First: pageURL(1),
+			Last:  pageURL(totalPages),
+		}
+		if page > 1 {
+			prev := pageURL(page - 1)
+			links.Prev = &prev
+		}
+		if page < totalPages {
+			next := pageURL(page + 1)
+			links.Next = &next
+		}
 	}
 
 	return Page[T]{Data: data, Meta: meta, Links: links}

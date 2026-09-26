@@ -1,14 +1,20 @@
-module github.com/booscaaa/go-paginate/v4/gormpaginate
+module github.com/samuel-k-w/gorm-paginate/v4/gormpaginate
 
-go 1.25.5
-
-replace github.com/booscaaa/go-paginate/v4 => ../
+go 1.22
 
 require (
-	github.com/booscaaa/go-paginate/v4 v4.0.1 // indirect
+	github.com/samuel-k-w/gorm-paginate/v4 v4.1.0
+	gorm.io/driver/sqlite v1.6.0
+	gorm.io/gorm v1.30.0
+)
+
+require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/mattn/go-sqlite3 v1.14.15 // indirect
-	gorm.io/driver/sqlite v1.5.0 // indirect
-	gorm.io/gorm v1.25.0 // indirect
+	github.com/mattn/go-sqlite3 v1.14.22 // indirect
+	golang.org/x/text v0.20.0 // indirect
 )
+
+// Local development only — removed before publishing the gormpaginate tag
+// once v4.1.0 exists on the module proxy.
+replace github.com/samuel-k-w/gorm-paginate/v4 => ../

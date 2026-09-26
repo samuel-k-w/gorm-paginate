@@ -7,7 +7,7 @@ This package provides a robust, zero-dependency (other than GORM) integration la
 Because this package introduces `gorm.io/gorm` as a dependency, it is maintained as a separate Go module inside the `v4` directory to prevent polluting the core `go-paginate` module for users who use raw SQL.
 
 ```bash
-go get github.com/booscaaa/go-paginate/v4/gormpaginate
+go get github.com/samuel-k-w/gorm-paginate/v4/gormpaginate
 ```
 
 ## Quick Start
@@ -19,8 +19,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/booscaaa/go-paginate/v4/gormpaginate"
-	"github.com/booscaaa/go-paginate/v4/paginate"
+	"github.com/samuel-k-w/gorm-paginate/v4/gormpaginate"
+	"github.com/samuel-k-w/gorm-paginate/v4/paginate"
 	"gorm.io/gorm"
 )
 

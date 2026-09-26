@@ -4,7 +4,7 @@ import (
 	"testing"
 	"net/url"
 
-	"github.com/booscaaa/go-paginate/v4/paginate"
+	"github.com/samuel-k-w/gorm-paginate/v4/paginate"
 )
 
 func TestCursorPaginate_TieBreaker(t *testing.T) {
