@@ -4,23 +4,17 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.24.x]
+        go-version: ["1.22.x", "1.23.x"]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
       - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Test
-        run: cd v3 && go mod tidy && go test ./paginate/... -coverprofile=coverage.txt -covermode=atomic
-
-      - name: Upload coverage report
-        uses: codecov/codecov-action@v1.0.2
-        with:
-          token: a84f001b-f42f-4a33-b46a-dc563b8d668f
-          file: ./v3/coverage.txt
-          flags: unittests
-          name: codecov-umbrella
+        uses: actions/checkout@v4
+      - name: Test v4 core
+        run: cd v4 && go test ./paginate/... -count=1
+      - name: Test v4 gormpaginate
+        run: cd v4/gormpaginate && go test ./... -count=1

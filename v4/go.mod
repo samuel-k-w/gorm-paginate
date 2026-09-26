@@ -1,3 +1,3 @@
-module github.com/booscaaa/go-paginate/v4
+module github.com/samuel-k-w/gorm-paginate/v4
 
-go 1.21
+go 1.22

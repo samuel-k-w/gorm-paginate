@@ -3,7 +3,7 @@ package gormpaginate
 import (
 	"strings"
 
-	"github.com/booscaaa/go-paginate/v4/paginate"
+	"github.com/samuel-k-w/gorm-paginate/v4/paginate"
 	"gorm.io/gorm"
 )
 
@@ -45,12 +45,27 @@ func applySorting(db *gorm.DB, params *paginate.PaginationParams, resolver *sche
 		}
 	}
 
-	// Default sort
+	// Default sort — mutate params so NewCursorPage encodes the same columns as ORDER BY.
 	if !sortApplied && cfg.defaultSort != nil {
 		f := resolver.ResolveColumn(cfg.defaultSort.column)
 		if f != nil {
-			db = applyOrder(db, f.DBName, strings.ToUpper(cfg.defaultSort.direction))
+			dir := strings.ToUpper(cfg.defaultSort.direction)
+			db = applyOrder(db, f.DBName, dir)
 			sortedColumns = append(sortedColumns, f.DBName)
+			sortApplied = true
+
+			jsonKey := cfg.defaultSort.column
+			for _, tag := range strings.Split(f.Tag.Get("json"), ",") {
+				if tag != "" && tag != "omitempty" {
+					jsonKey = tag
+					break
+				}
+			}
+			if dir == "DESC" {
+				params.Sort = append(params.Sort, "-"+jsonKey)
+			} else {
+				params.Sort = append(params.Sort, jsonKey)
+			}
 		}
 	}
 

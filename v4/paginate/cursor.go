@@ -114,11 +114,14 @@ func NewCursorPage[T any](rawItems []T, params *PaginationParams, baseURL *url.U
 	hasPrev := params.Cursor != ""
 
 	meta := CursorMeta{PerPage: limit, HasNext: hasNext, HasPrev: hasPrev}
-	links := CursorLinks{Self: baseURL.String()}
+	links := CursorLinks{}
+	if baseURL != nil {
+		links.Self = baseURL.String()
+	}
 
 	cols, sortDirs := extractSortInfo(params)
 
-	if len(cols) > 0 && len(data) > 0 {
+	if baseURL != nil && len(cols) > 0 && len(data) > 0 {
 		if hasNext {
 			nextVals := extractFieldsByJSONTag(data[len(data)-1], cols)
 			next := buildCursorURLMulti(baseURL, cols, nextVals, sortDirs, "after")
@@ -166,6 +169,7 @@ func extractSortInfo(params *PaginationParams) (columns []string, directions []s
 }
 
 // extractFieldsByJSONTag extracts field values from item by matching json tag names.
+// Anonymous embedded structs are walked so models that embed a Base with `json:"id"` work.
 func extractFieldsByJSONTag[T any](item T, jsonTags []string) []any {
 	vals := make([]any, len(jsonTags))
 	v := reflect.ValueOf(item)
@@ -175,15 +179,36 @@ func extractFieldsByJSONTag[T any](item T, jsonTags []string) []any {
 		t = t.Elem()
 	}
 	for i, tag := range jsonTags {
-		for j := 0; j < t.NumField(); j++ {
-			fieldTag := strings.Split(t.Field(j).Tag.Get("json"), ",")[0]
-			if fieldTag == tag {
-				vals[i] = v.Field(j).Interface()
-				break
+		vals[i] = findFieldByJSONTag(v, t, tag)
+	}
+	return vals
+}
+
+func findFieldByJSONTag(v reflect.Value, t reflect.Type, tag string) any {
+	for j := 0; j < t.NumField(); j++ {
+		sf := t.Field(j)
+		fieldTag := strings.Split(sf.Tag.Get("json"), ",")[0]
+		if fieldTag == tag {
+			return v.Field(j).Interface()
+		}
+		if sf.Anonymous {
+			fv := v.Field(j)
+			ft := sf.Type
+			if ft.Kind() == reflect.Ptr {
+				if fv.IsNil() {
+					continue
+				}
+				fv = fv.Elem()
+				ft = ft.Elem()
+			}
+			if ft.Kind() == reflect.Struct {
+				if found := findFieldByJSONTag(fv, ft, tag); found != nil {
+					return found
+				}
 			}
 		}
 	}
-	return vals
+	return nil
 }
 
 func buildCursorURL(base *url.URL, column string, value any, direction string) string {

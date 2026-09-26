@@ -7,7 +7,7 @@ This package provides a robust, zero-dependency (other than GORM) integration la
 Because this package introduces `gorm.io/gorm` as a dependency, it is maintained as a separate Go module inside the `v4` directory to prevent polluting the core `go-paginate` module for users who use raw SQL.
 
 ```bash
-go get github.com/booscaaa/go-paginate/v4/gormpaginate
+go get github.com/samuel-k-w/gorm-paginate/v4/gormpaginate
 ```
 
 ## Quick Start
@@ -19,8 +19,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/booscaaa/go-paginate/v4/gormpaginate"
-	"github.com/booscaaa/go-paginate/v4/paginate"
+	"github.com/samuel-k-w/gorm-paginate/v4/gormpaginate"
+	"github.com/samuel-k-w/gorm-paginate/v4/paginate"
 	"gorm.io/gorm"
 )
 
@@ -148,5 +148,51 @@ func (h *UserHandler) List(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, page)
+}
+```
+
+## Working with DTOs (Data Transfer Objects)
+
+If you use a strict layered architecture, you likely separate your Database Entities (GORM models) from your API Responses (DTOs). 
+
+Because this library relies on GORM tags to safely map columns and execute SQL, you must pass your **Database Entity** to the `Paginate` function. After retrieving the paginated entity, you can easily map the data slice to your DTO.
+
+```go
+// 1. Database Model (Used for GORM)
+type UserEntity struct {
+	ID           uint   `gorm:"primaryKey"`
+	FirstName    string `gorm:"column:first_name"`
+	PasswordHash string `gorm:"column:password_hash"`
+}
+
+// 2. API Response (Exposed to Client)
+type UserDTO struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
+}
+
+// 3. Mapping Function
+func GetUsersDTO(db *gorm.DB, params *paginate.PaginationParams, baseURL *url.URL) (paginate.Page[UserDTO], error) {
+	// A. Paginate using the Database Entity
+	entityPage, err := gormpaginate.Paginate[UserEntity](db, params, baseURL)
+	if err != nil {
+		return paginate.Page[UserDTO]{}, err
+	}
+
+	// B. Map the Entities to your DTOs
+	var dtos []UserDTO
+	for _, user := range entityPage.Data {
+		dtos = append(dtos, UserDTO{
+			ID:   user.ID,
+			Name: user.FirstName,
+		})
+	}
+
+	// C. Return a new Page struct with the DTOs, preserving Meta and Links!
+	return paginate.Page[UserDTO]{
+		Data:  dtos,
+		Meta:  entityPage.Meta,
+		Links: entityPage.Links,
+	}, nil
 }
 ```
